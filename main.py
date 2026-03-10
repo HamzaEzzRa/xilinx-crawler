@@ -134,7 +134,7 @@ def list_xilinx_tools(timeout: float, **kwargs):
     if not g_driver:
         raise ValueError("Web driver is not initialized. Please initialize the web driver first.")
 
-    g_driver.get("https://www.xilinx.com/support/download.html")
+    g_driver.get("https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools.html")
     available_categories = WebDriverWait(g_driver, timeout).until(
         EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, \"xilinxTabs\")]/ul[contains(@class, \"nav\")]/descendant::a"))
     )
@@ -304,8 +304,10 @@ def get_xilinx_tool(target_tool, target_version, download_dir: str, timeout: flo
                 url = href.get_attribute("href")
                 if "member/forms/download" in url:
                     idx += 1
-                    title = href.get_attribute("data-original-title")
-                    file_info = href.find_element(By.XPATH, "parent::p/child::span[contains(@class, \"subdued\")]").text
+                    title = href.get_attribute("data-original-title").strip()
+                    file_info = href.find_element(
+                        By.XPATH, "parent::p/child::span[contains(@class, \"subdued\")]"
+                    ).get_attribute("textContent").strip()
                     info_message += f"{idx}. {title} {file_info}\n"
 
                     download_hrefs.append((href, file_info.split("-")[-1][:-1].strip()))
@@ -481,7 +483,7 @@ def main(args):
         for tool in tools:
             tools_texts.append(format_tool_name(tool.text.strip()))
             tools_hrefs.append(tool.get_attribute("href"))
-        tools = None # will turn stale once we navigate to a different page, clear it and use copied info
+        tools = None  # will turn stale once we navigate to a different page, clear it and use copied info
 
         versions = {
             text: list_tool_versions(href, args.timeout) for text, href in zip(tools_texts, tools_hrefs)

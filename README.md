@@ -26,13 +26,19 @@ Once the prerequisites are installed, you can run the script to choose and downl
 
 ### Command-line Usage
 You can simply run the script from a terminal to choose from all available tools and versions:
-```python
+```bash
 python main.py
 ```
 
 You can pass more options for an advanced usage. Please check using "-h" option for further details:
-```python
+```bash
 python main.py -h
+```
+
+For example, you can list all available tools and their versions, then pick a specific tool/version to download directly without the verbose list of all downloads:
+```bash
+python main.py --list-tools
+python main.py --tool Vivado --version "Vivado Archive 2020.3"
 ```
 
 ## License
