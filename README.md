@@ -51,7 +51,7 @@ xilinxget -h
 
 For example, you can list all available tools and their versions, then pick a specific tool/version to download directly without the verbose list of all downloads:
 ```bash
-xilinxget --list-tools
+xilinxget --list
 xilinxget --tool Vivado --version "Vivado Archive 2020.3"
 ```
 

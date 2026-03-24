@@ -350,7 +350,10 @@ def get_xilinx_tool(target_tool, target_version, download_dir: str, timeout: flo
 
             if kwargs.get("describe", False):
                 try:
-                    desc = div.find_element(By.XPATH, "descendant::div[@class=\"row\"]/descendant::div[@class=\"alert\"]").text
+                    desc = div.find_element(
+                        By.XPATH,
+                        "descendant::div[@class=\"row\"]/descendant::div[@class=\"alert\"]"
+                    ).get_attribute("textContent")
                 except:
                     desc = ""
                 if desc: # Avoid cluttering the output if there are too many versions
@@ -528,20 +531,24 @@ def get_xilinx_tool(target_tool, target_version, download_dir: str, timeout: flo
 
 
 def main():
+    default_timeout = 40
     home_dir = os.path.expanduser("~")
+    download_dir = os.path.join(home_dir, "Downloads")
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir)
 
     parser = argparse.ArgumentParser(description="Automated download script for Xilinx tools.")
-    parser.add_argument("-t", "--tool", default="", help="Specify the tool to download (e.g., vivado, vitis, petalinux, etc.)")
-    parser.add_argument("-v", "--version", default="", help="Specify the version of the tool (e.g., 2024.1)")
-    parser.add_argument("-o", "--output", default=home_dir, help=f"Specify the download output directory (default: {home_dir})")
-    parser.add_argument("-ti", "--timeout", default=40, type=float, help="Specify the timeout in seconds for each web request (default: 20)")
-    parser.add_argument("-lt", "--list-tools", action="store_true", help="List all available tools and versions")
-    parser.add_argument("--describe", action="store_true", help="Print downloadable files descriptions")
-    parser.add_argument("--visible", action="store_true", help="Run with visible browser for debugging purposes")
+    parser.add_argument("-l", "--list", dest="list_tools", action="store_true", help="list all available tools and versions")
+    parser.add_argument("-t", "--tool", default="", help="specify the tool to download (e.g., vivado, vitis, petalinux, etc.)")
+    parser.add_argument("-v", "--version", default="", help="specify the version of the tool (e.g., 2024.1)")
+    parser.add_argument("-o", "--output-dir", default=download_dir, help=f"specify the download output directory (default: {download_dir})")
+    parser.add_argument("-ti", "--timeout", default=default_timeout, type=float, help=f"specify the timeout in seconds for each web request (default: {default_timeout})")
+    parser.add_argument("--describe", action="store_true", help="print verbose files descriptions")
+    parser.add_argument("--visible", action="store_true", help="run with visible browser for debugging purposes")
     args = parser.parse_args()
 
     check_system_dependencies(headless=not args.visible)
-    get_chrome_driver(args.output, headless=not args.visible)
+    get_chrome_driver(args.output_dir, headless=not args.visible)
 
     if args.list_tools:
         tools = list_xilinx_tools(args.timeout)
@@ -577,7 +584,7 @@ def main():
             info_message += f"\n{prefix}{versions_texts}"
         pager_print(info_message)
     else:
-        get_xilinx_tool(args.tool, args.version, args.output, timeout=args.timeout, describe=args.describe)
+        get_xilinx_tool(args.tool, args.version, args.output_dir, timeout=args.timeout, describe=args.describe)
 
     global g_driver, g_display
     if g_driver:
